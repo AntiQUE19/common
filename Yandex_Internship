@@ -1,0 +1,137 @@
+/*
+У каждого из нас есть ежемесячные дела, каждое из которых нужно выполнять в конкретный день каждого месяца: оплата счетов за электричество, абонентская плата за связь и пр. Вам нужно реализовать работу со списком таких дел, а именно, обработку следующих операций:
+
+ADD is
+Добавить дело с названием s в день i.
+
+NEXT
+Закончить текущий месяц и начать новый. Если новый месяц имеет больше дней, чем текущий, добавленные дни изначально не будут содержать дел. Если же в новом месяце меньше дней, дела со всех удаляемых дней необходимо будет переместить на последний день нового месяца.
+
+Обратите внимание, что количество команд этого типа может превышать 11.
+
+DUMP i
+Вывести все дела в день i.
+
+Изначально текущим месяцем считается январь. Количества дней в месяцах соответствуют Григорианскому календарю с той лишь разницей, что в феврале всегда 28 дней.
+
+Формат ввода
+Сначала число операций Q, затем описания операций.
+
+Названия дел s уникальны и состоят только из латинских букв, цифр и символов подчёркивания. Номера дней i являются целыми числами и нумеруются от 1 до размера текущего месяца.
+
+Формат вывода
+Для каждой операции типа DUMP в отдельной строке выведите количество дел в соответствующий день, а затем их названия, разделяя их пробелом. Порядок вывода дел в рамках каждой операции значения не имеет.
+
+Ввод:
+
+12
+ADD 5 Salary
+ADD 31 Walk
+ADD 30 WalkPreparations
+NEXT
+DUMP 5
+DUMP 28
+NEXT
+DUMP 31
+DUMP 30
+DUMP 28
+ADD 28 Payment
+DUMP 28
+
+Вывод:
+
+1 Salary
+2 WalkPreparations Walk
+0
+0
+2 WalkPreparations Walk
+3 WalkPreparations Walk Payment
+*/
+
+#include <iostream>
+#include <vector>
+#include <string>
+
+using namespace std;
+
+struct lists
+{
+	vector<string> event;
+} one_day;
+
+void CreateMonth(int& numMonth, vector<lists>& month)
+{
+	
+		if( numMonth%12 == 0 || numMonth%12 == 2 || numMonth%12 == 4 || numMonth%12 == 6 || numMonth%12 == 7 || numMonth%12== 9 || numMonth%12 == 11 )
+		{
+			month.resize(31);
+		}
+		else if( numMonth%12 == 3 || numMonth%12 == 5 || numMonth%12 == 8 || numMonth%12 == 10 )
+		{	
+			for(size_t i = 0; i < month[30].event.size(); ++i)
+			{
+				month[29].event.push_back(month[30].event[i]);
+			}
+			month.resize(30);
+		}
+		else
+		{	
+			for(int j = 28; j < 31; ++j)
+			{
+				for(size_t i = 0; i < month[j].event.size(); ++i)
+				{
+					month[27].event.push_back(month[j].event[i]);
+				}
+			}
+			month.resize(28);
+		}
+}
+
+void DoAction(const string& action, int& numMonth, vector<lists>& month)
+{	
+	int num;
+	string str;
+	
+	if(action == "ADD" || action == "add")
+	{
+		cin >> num >> str;
+		num -= 1;
+		//cout << num << " " << str << endl;
+		month[num].event.push_back(str);
+	}
+	else if(action == "NEXT" || action == "next")
+	{
+		numMonth += 1;
+		CreateMonth(numMonth, month);
+
+	}
+	else if(action == "DUMP" || action == "dump")
+	{
+		cin >> num;
+		num -= 1;
+		cout << month[num].event.size();
+		
+		for(size_t i = 0; i < month[num].event.size(); ++i)
+		{
+			cout << " " << month[num].event[i];
+		}
+		cout << endl;
+	}
+}
+
+int main() 
+{
+	int q, numMonth = 0;
+	string action;
+	vector<lists> month(31);
+	
+	cin >> q;
+	
+	for(int i = 0; i < q; ++i)
+	{
+		cin >> action;
+		DoAction( action, numMonth, month);
+	}
+			
+	return 0;
+}
